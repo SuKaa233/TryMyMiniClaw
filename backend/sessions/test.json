@@ -1,0 +1,30 @@
+[
+  {
+    "type": "user",
+    "content": "帮我看一下今天B站热度前十的视频"
+  },
+  {
+    "type": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "name": "get_bilibili_ranking",
+        "args": {
+          "category": "all"
+        },
+        "id": "get_bilibili_ranking:0",
+        "type": "tool_call"
+      }
+    ]
+  },
+  {
+    "type": "tool",
+    "content": "[\n  {\n    \"rank\": 1,\n    \"title\": \"不该让爷爷看b站的\",\n    \"author\": \"逗比的雀巢\",\n    \"view_count\": \"743.9万\",\n    \"link\": \"https://www.bilibili.com/video/BV1xuPYzcEdo\"\n  },\n  {\n    \"rank\": 2,\n    \"title\": \"《鸽羽》\",\n    \"author\": \"孤独的xx\",\n    \"view_count\": \"157.5万\",\n    \"link\": \"https://www.bilibili.com/video/BV1DFNTzPEAk\"\n  },\n  {\n    \"rank\": 3,\n    \"title\": \"放心老爸，我会照顾好她们每一个人的。\",\n    \"author\": \"睡不醒酒\",\n    \"view_count\": \"309.6万\",\n    \"link\": \"https://www.bilibili.com/video/BV1fnPYzQEUL\"\n  },\n  {\n    \"rank\": 4,\n    \"title\": \"最难绷【你画我猜】\",\n    \"author\": \"徐大虾咯\",\n    \"view_count\": \"147.6万\",\n    \"link\": \"https://www.bilibili.com/video/BV1QoPazMEqZ\"\n  },\n  {\n    \"rank\": 5,\n    \"title\": \"天大地大都是朋友~ 2026我们一起让世界变得更好\",\n    \"author\": \"芋头在加拿大\",\n    \"view_count\": \"143.6万\",\n    \"link\": \"https://www.bilibili.com/video/BV1vdPszdEkn\"\n  },\n  {\n    \"rank\": 6,\n    \"title\": \"从中国自驾到冰岛只需要7天？这有1000万中国人？我真信了开到了冰岛！\",\n    \"author\": \"十三要和拳头\",\n    \"view_count\": \"410万\",\n    \"link\": \"https://www.bilibili.com/video/BV1krP1zoELy\"\n  },\n  {\n    \"rank\": 7,\n    \"title\": \"邻居喜欢我爸\",\n    \"author\": \"meme的爆米花\",\n    \"view_count\": \"627万\",\n    \"link\": \"https://www.bilibili.com/video/BV12uPYzFEC2\"\n  },\n  {\n    \"rank\": 8,\n    \"title\": \"蚊子就不用这么可爱了吧\",\n    \"author\": \"不腐YE\",\n    \"view_count\": \"250.3万\",\n    \"link\": \"https://www.bilibili.com/video/BV1DyPWz5EnQ\"\n  },\n  {\n    \"rank\": 9,\n    \"title\": \"【Tarokiki 无修音】远航星的告别\",\n    \"author\": \"Tarokiki_music\",\n    \"view_count\": \"125.8万\",\n    \"link\": \"https://www.bilibili.com/video/BV1VWP4z4Eem\"\n  },\n  {\n    \"rank\": 10,\n    \"title\": \"把！分！给！我！\",\n    \"author\": \"无我漂佩MY\",\n    \"view_count\": \"245万\",\n    \"link\": \"https://www.bilibili.com/video/BV1RDPazGEgi\"\n  }\n]",
+    "tool_call_id": "get_bilibili_ranking:0",
+    "name": "get_bilibili_ranking"
+  },
+  {
+    "type": "assistant",
+    "content": "今天B站热度前十的视频如下：\n\n1. **不该让爷爷看b站的** - 逗比的雀巢，播放量：743.9万。[观看视频](https://www.bilibili.com/video/BV1xuPYzcEdo)\n2. **《鸽羽》** - 孤独的xx，播放量：157.5万。[观看视频](https://www.bilibili.com/video/BV1DFNTzPEAk)\n3. **放心老爸，我会照顾好她们每一个人的。** - 睡不醒酒，播放量：309.6万。[观看视频](https://www.bilibili.com/video/BV1fnPYzQEUL)\n4. **最难绷【你画我猜】** - 徐大虾咯，播放量：147.6万。[观看视频](https://www.bilibili.com/video/BV1QoPazMEqZ)\n5. **天大地大都是朋友~ 2026我们一起让世界变得更好** - 芋头在加拿大，播放量：143.6万。[观看视频](https://www.bilibili.com/video/BV1vdPszdEkn)\n6. **从中国自驾到冰岛只需要7天？这有1000万中国人？我真信了开到了冰岛！** - 十三要和拳头，播放量：410万。[观看视频](https://www.bilibili.com/video/BV1krP1zoELy)\n7. **邻居喜欢我爸** - meme的爆米花，播放量：627万。[观看视频](https://www.bilibili.com/video/BV12uPYzFEC2)\n8. **蚊子就不用这么可爱了吧** - 不腐YE，播放量：250.3万。[观看视频](https://www.bilibili.com/video/BV1DyPWz5EnQ)\n9. **【Tarokiki 无修音】远航星的告别** - Tarokiki_music，播放量：125.8万。[观看视频](https://www.bilibili.com/video/BV1VWP4z4Eem)\n10. **把！分！给！我！** - 无我漂佩MY，播放量：245万。[观看视频](https://www.bilibili.com/video/BV1RDPazGEgi)\n\n这些视频覆盖了各种类型，从搞笑到音乐，从旅行到动画，展现了B站内容的多样性。"
+  }
+]
