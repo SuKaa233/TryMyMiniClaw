@@ -83,4 +83,30 @@ Agent:
 3.  Returns: "The weather in London is..."
 
 
+<!-- Skill: play_bilibili_video -->
+name: play_bilibili_video
+description: 在Bilibili上搜索并播放指定的视频，支持通过关键词搜索或直接通过BV号播放。
+Skill: Play Bilibili Video
+This skill allows the agent to search for and play specific videos on Bilibili, prioritizing MCP tools to control the user's existing browser.
+
+Capabilities
+- Search and play videos by keyword.
+- Play videos directly by BV ID.
+- Prioritize MCP tools (mcp_new_tab, etc.) over built-in browser tools.
+
+Tools Used
+- mcp_new_tab / mcp_switch_tab / mcp_type / mcp_click (Preferred)
+- browser_open / browser_type / browser_click (Fallback)
+
+Usage
+When the user asks to "play video", "watch video", "open Bilibili video", use this skill.
+
+Example
+User: "播放关于 Python 的视频"
+Agent:
+1. Reads backend/skills/play_bilibili_video/SKILL.md.
+2. Checks MCP availability (if tool available) or tries MCP tools first.
+3. If MCP available, calls mcp_new_tab("https://search.bilibili.com/all?keyword=Python").
+4. If MCP unavailable, calls browser_open("https://search.bilibili.com/all?keyword=Python").
+
 </available_skills>

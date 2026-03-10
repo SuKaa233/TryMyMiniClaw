@@ -2,10 +2,11 @@ import asyncio
 import threading
 import time
 from typing import Any, List, Optional
-from pydantic import create_model
+from pydantic import create_model, BaseModel, Field
 from langchain_core.tools import BaseTool, StructuredTool
 from mcp import ClientSession
 from mcp.client.sse import sse_client
+from langchain_core.callbacks import CallbackManagerForToolRun
 
 # URL from user
 MCP_SSE_URL = "https://web-mcp.koyeb.app/sse/97fdaddc-2008-43ed-9c44-0c79e1ecd8c7"
@@ -93,6 +94,28 @@ class MCPClientManager:
         result = await self.session.call_tool(name, arguments)
         return result
 
+class CheckMCPStatusInput(BaseModel):
+    pass
+
+class CheckMCPStatusTool(BaseTool):
+    name: str = "check_mcp_status"
+    description: str = "Checks if the MCP server is connected and returns the list of available tools."
+    args_schema: Type[BaseModel] = CheckMCPStatusInput
+
+    def _run(self, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+        manager = MCPClientManager.get_instance()
+        if not manager._ready.is_set():
+            return "MCP Status: Disconnected. Remote server is not reachable."
+        
+        # Try to list tools to verify connection
+        try:
+            future = asyncio.run_coroutine_threadsafe(manager._list_tools(), manager.loop)
+            tools_data = future.result(timeout=5)
+            tool_names = [t.name for t in tools_data.tools]
+            return f"MCP Status: Connected.\nAvailable Tools: {', '.join(tool_names)}"
+        except Exception as e:
+            return f"MCP Status: Connected but failed to list tools. Error: {e}"
+
 def create_mcp_tools() -> List[BaseTool]:
     manager = MCPClientManager.get_instance()
     
@@ -148,5 +171,8 @@ def create_mcp_tools() -> List[BaseTool]:
                 args_schema=ArgsModel
             )
             langchain_tools.append(lc_tool)
+            
+    # Add the status check tool
+    langchain_tools.append(CheckMCPStatusTool())
             
     return langchain_tools
