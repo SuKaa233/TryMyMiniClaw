@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User } from "lucide-react";
+import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User, Sparkles, MonitorPlay } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { sendMessage, getFile, saveFile, getSessions, getSkills, getSessionHistory, deleteSession, checkHealth, type Message, type ToolCall } from "@/lib/api";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useTheme } from "next-themes";
 import Image from "next/image";
+import Link from "next/link";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -394,6 +395,23 @@ export default function Home() {
               </button>
             </div>
           )}
+
+          <div className="px-2 py-2 border-b border-zinc-200 dark:border-zinc-800 space-y-1">
+             <Link 
+                 href="/creative" 
+                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-purple-500/10 to-blue-500/10 hover:from-purple-500/20 hover:to-blue-500/20 border border-purple-500/20 text-purple-600 dark:text-purple-400 transition-all"
+             >
+                 <Sparkles className="w-4 h-4" />
+                 <span className="font-medium">创意工坊 (文生图)</span>
+             </Link>
+             <Link 
+                 href="/ppt" 
+                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-orange-500/10 to-red-500/10 hover:from-orange-500/20 hover:to-red-500/20 border border-orange-500/20 text-orange-600 dark:text-orange-400 transition-all"
+             >
+                 <MonitorPlay className="w-4 h-4" />
+                 <span className="font-medium">演示文稿 (文生PPT)</span>
+             </Link>
+           </div>
 
           {activeSidebarTab === "skills" && (
             <div className="space-y-1">

@@ -1,14 +1,14 @@
 import asyncio
 import threading
 import time
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Type
 from pydantic import create_model, BaseModel, Field
 from langchain_core.tools import BaseTool, StructuredTool
 from mcp import ClientSession
 from mcp.client.sse import sse_client
 from langchain_core.callbacks import CallbackManagerForToolRun
 
-# URL from user
+# 用户提供的 URL
 MCP_SSE_URL = "https://web-mcp.koyeb.app/sse/97fdaddc-2008-43ed-9c44-0c79e1ecd8c7"
 
 class MCPClientManager:
@@ -22,7 +22,7 @@ class MCPClientManager:
         self.session: Optional[ClientSession] = None
         self._ready = threading.Event()
         
-        # Initialize connection in the loop
+        # 在循环中初始化连接
         asyncio.run_coroutine_threadsafe(self._connect(), self.loop)
 
     @classmethod
@@ -36,7 +36,7 @@ class MCPClientManager:
         self.loop.run_forever()
 
     async def _connect(self):
-        """Maintains the SSE connection"""
+        """维护 SSE 连接"""
         while True:
             try:
                 # print(f"Connecting to MCP SSE: {self.url}")
@@ -47,17 +47,17 @@ class MCPClientManager:
                         self._ready.set()
                         # print("MCP Connected and Initialized")
                         
-                        # Keep session alive
+                        # 保持会话活跃
                         await asyncio.Future() 
             except Exception as e:
                 print(f"MCP Connection Error: {e}")
                 self._ready.clear()
                 self.session = None
-                await asyncio.sleep(5) # Retry delay
+                await asyncio.sleep(5) # 重试延迟
 
     def get_tools_sync(self) -> List[Any]:
-        """Fetch tools list synchronously"""
-        # Wait for connection
+        """同步获取工具列表"""
+        # 等待连接
         start_time = time.time()
         while not self._ready.is_set():
             if time.time() - start_time > 10:
@@ -78,7 +78,7 @@ class MCPClientManager:
         return await self.session.list_tools()
 
     def call_tool_sync(self, name: str, arguments: dict) -> Any:
-        """Call tool synchronously"""
+        """同步调用工具"""
         if not self._ready.is_set():
              return "Error: MCP connection not ready"
              
@@ -107,7 +107,7 @@ class CheckMCPStatusTool(BaseTool):
         if not manager._ready.is_set():
             return "MCP Status: Disconnected. Remote server is not reachable."
         
-        # Try to list tools to verify connection
+        # 尝试列出工具以验证连接
         try:
             future = asyncio.run_coroutine_threadsafe(manager._list_tools(), manager.loop)
             tools_data = future.result(timeout=5)
@@ -119,13 +119,13 @@ class CheckMCPStatusTool(BaseTool):
 def create_mcp_tools() -> List[BaseTool]:
     manager = MCPClientManager.get_instance()
     
-    # Try to fetch tools
+    # 尝试获取工具
     mcp_tools_data = manager.get_tools_sync()
     langchain_tools = []
     
     if hasattr(mcp_tools_data, 'tools'):
         for tool in mcp_tools_data.tools:
-            # Create Pydantic model for args
+            # 为参数创建 Pydantic 模型
             fields = {}
             if tool.inputSchema and 'properties' in tool.inputSchema:
                 for prop_name, prop_def in tool.inputSchema['properties'].items():
@@ -138,21 +138,21 @@ def create_mcp_tools() -> List[BaseTool]:
                     elif prop_type == 'array':
                         t = list
                     
-                    # Check if required
+                    # 检查是否必须
                     is_required = prop_name in tool.inputSchema.get('required', [])
                     default = ... if is_required else None
                     fields[prop_name] = (t, default)
             
-            # Create dynamic model
-            # Ensure model name is unique and valid
+            # 创建动态模型
+            # 确保模型名称唯一且有效
             safe_name = tool.name.replace("-", "_") + "_Args"
             ArgsModel = create_model(safe_name, **fields)
             
-            # Closure for run function
+            # 运行函数的闭包
             def make_run_func(t_name):
                 def _run(**kwargs):
                     result = manager.call_tool_sync(t_name, kwargs)
-                    # Result is CallToolResult
+                    # 结果是 CallToolResult
                     if hasattr(result, 'content'):
                         text_content = []
                         for item in result.content:
@@ -166,13 +166,13 @@ def create_mcp_tools() -> List[BaseTool]:
 
             lc_tool = StructuredTool.from_function(
                 func=make_run_func(tool.name),
-                name=f"mcp_{tool.name.replace('-', '_')}", # Prefix to avoid conflicts
+                name=f"mcp_{tool.name.replace('-', '_')}", # 前缀以避免冲突
                 description=tool.description or f"MCP Tool: {tool.name}",
                 args_schema=ArgsModel
             )
             langchain_tools.append(lc_tool)
             
-    # Add the status check tool
+    # 添加状态检查工具
     langchain_tools.append(CheckMCPStatusTool())
             
     return langchain_tools

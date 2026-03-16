@@ -6,11 +6,11 @@ from langchain_core.callbacks import CallbackManagerForToolRun
 import json
 
 class GetBilibiliRankingInput(BaseModel):
-    category: str = Field(description="The category of ranking to fetch (default: 'all'). Options: all, origin, bangumi, cinema, rookie", default="all")
+    category: str = Field(description="获取排行榜的类别（默认：'all'）。选项：all, origin, bangumi, cinema, rookie", default="all")
 
 class GetBilibiliRankingTool(BaseTool):
     name: str = "get_bilibili_ranking"
-    description: str = "Fetches the current top 10 popular videos from Bilibili using a real browser to bypass anti-scraping."
+    description: str = "使用真实浏览器绕过反爬虫机制，获取B站当前最热门的10个视频。"
     args_schema: Type[BaseModel] = GetBilibiliRankingInput
 
     def _run(self, category: str = "all", run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
@@ -41,8 +41,8 @@ class GetBilibiliRankingTool(BaseTool):
                 except:
                     return f"Error: Timeout waiting for rank list at {url}"
 
-                # Extract items
-                # We use evaluate to run JS in the browser context for better performance and stability
+                # 提取项目
+                # 我们使用 evaluate 在浏览器上下文中运行 JS 以获得更好的性能和稳定性
                 results = page.evaluate("""
                     () => {
                         const items = document.querySelectorAll('.rank-item');
@@ -50,7 +50,7 @@ class GetBilibiliRankingTool(BaseTool):
                         for (let i = 0; i < Math.min(items.length, 10); i++) {
                             const item = items[i];
                             const titleEl = item.querySelector('.title');
-                            const viewEl = item.querySelector('.detail-state .data-box'); // View count usually first
+                            const viewEl = item.querySelector('.detail-state .data-box'); // 通常第一个是播放量
                             const authorEl = item.querySelector('.up-name');
                             const linkEl = item.querySelector('a.title');
                             

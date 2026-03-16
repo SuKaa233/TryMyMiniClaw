@@ -43,3 +43,7 @@ yarn-error.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Private Files with API Keys
+backend/services/image_generator.py
+backend/services/ppt_generator.py

@@ -7,7 +7,7 @@ from langgraph.prebuilt import ToolNode
 import os
 import json
 
-# Import tools
+# 导入工具
 from backend.tools import get_core_tools
 from backend.tools.rag import get_rag_tool
 
@@ -27,7 +27,7 @@ def get_system_prompt() -> str:
     ]
 
     if not os.path.exists("backend/workspace/SKILLS_SNAPSHOT.md"):
-        # Ensure directory exists
+        # 确保目录存在
         os.makedirs("backend/workspace", exist_ok=True)
         with open("backend/workspace/SKILLS_SNAPSHOT.md", "w", encoding="utf-8") as f:
             f.write("<available_skills>\n</available_skills>")
@@ -43,24 +43,24 @@ def get_system_prompt() -> str:
 
 def sanitize_messages(messages: List[BaseMessage]) -> List[BaseMessage]:
     """
-    Ensure that every ToolMessage has a corresponding tool call in the preceding AIMessage.
-    If not, drop the ToolMessage to prevent 'tool_call_id not found' errors.
+    确保每个 ToolMessage 在前面的 AIMessage 中都有对应的工具调用。
+    如果没有，丢弃该 ToolMessage 以防止 'tool_call_id not found' 错误。
     """
     sanitized = []
-    # We need to look ahead/behind, so iterate by index or keep track of expected tool calls
+    # 我们需要向前/向后查看，所以通过索引迭代或跟踪预期的工具调用
     
     i = 0
     while i < len(messages):
         msg = messages[i]
         
         if isinstance(msg, ToolMessage):
-            # Check if previous message was AIMessage with this tool_call_id
-            # Or if it's part of a sequence of ToolMessages preceded by an AIMessage
+            # 检查前一条消息是否为带有此 tool_call_id 的 AIMessage
+            # 或者它是否属于以 AIMessage 开头的一系列 ToolMessage
             is_valid = False
             last_msg_info = "None"
             
-            # Search backwards for the most recent AIMessage
-            # (Skipping other ToolMessages in between)
+            # 向后搜索最近的 AIMessage
+            # (跳过中间的其他 ToolMessage)
             found_ai_msg = None
             if sanitized:
                 for j in range(len(sanitized) - 1, -1, -1):
@@ -69,9 +69,9 @@ def sanitize_messages(messages: List[BaseMessage]) -> List[BaseMessage]:
                         found_ai_msg = m
                         break
                     elif isinstance(m, ToolMessage):
-                        continue # Skip other tool messages
+                        continue # 跳过其他工具消息
                     else:
-                        break # Stop at User/System message
+                        break # 在 User/System 消息处停止
             
             if found_ai_msg:
                 last_msg_info = f"AIMessage tool_calls={len(found_ai_msg.tool_calls)}"
@@ -84,7 +84,7 @@ def sanitize_messages(messages: List[BaseMessage]) -> List[BaseMessage]:
             if is_valid:
                 sanitized.append(msg)
             else:
-                print(f"Warning: Dropping orphaned ToolMessage with id {msg.tool_call_id}. Previous AIMessage info: {last_msg_info}")
+                print(f"警告：丢弃孤立的 ToolMessage，ID 为 {msg.tool_call_id}。前一个 AIMessage 信息：{last_msg_info}")
         else:
             sanitized.append(msg)
         i += 1
@@ -92,11 +92,11 @@ def sanitize_messages(messages: List[BaseMessage]) -> List[BaseMessage]:
     return sanitized
 
 def create_graph():
-    # Tools
+    # 工具
     tools = get_core_tools(os.getcwd())
     tools.append(get_rag_tool())
 
-    # Model
+    # 模型
     model_name = os.getenv("MODEL_NAME", "moonshot-v1-8k")
     base_url = os.getenv("OPENAI_API_BASE", "https://api.moonshot.cn/v1")
     api_key = os.getenv("OPENAI_API_KEY")
@@ -108,24 +108,24 @@ def create_graph():
         api_key=api_key
     )
 
-    # Bind tools (Native Function Calling)
-    # Kimi/Moonshot supports OpenAI compatible tool calling
+    # 绑定工具（原生函数调用）
+    # Kimi/Moonshot 支持 OpenAI 兼容的工具调用
     model = model.bind_tools(tools)
 
-    # Nodes
+    # 节点
     def agent_node(state: AgentState):
         messages = state["messages"]
 
-        # Inject System Prompt
+        # 注入系统提示词
         system_prompt = get_system_prompt()
         
-        # Filter out old system messages to avoid duplicates/confusion
+        # 过滤掉旧的系统消息以避免重复/混淆
         filtered_messages = [m for m in messages if not isinstance(m, SystemMessage)]
         
-        # Sanitize messages to prevent 400 errors
+        # 清理消息以防止 400 错误
         sanitized_messages = sanitize_messages(filtered_messages)
 
-        # Prepend current system prompt
+        # 预置当前系统提示词
         final_messages = [SystemMessage(content=system_prompt)] + sanitized_messages
 
         try:
@@ -134,7 +134,7 @@ def create_graph():
         except Exception as e:
             return {"messages": [AIMessage(content=f"Error invoking model: {str(e)}")]}
 
-    # Define Graph
+    # 定义图
     workflow = StateGraph(AgentState)
     workflow.add_node("agent", agent_node)
     workflow.add_node("tools", ToolNode(tools))
@@ -143,7 +143,7 @@ def create_graph():
 
     def should_continue(state: AgentState):
         last_message = state["messages"][-1]
-        # If the model called a tool, it returns a message with tool_calls
+        # 如果模型调用了工具，它会返回带有 tool_calls 的消息
         if hasattr(last_message, "tool_calls") and last_message.tool_calls:
             return "tools"
         return END

@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import json
@@ -15,10 +16,22 @@ from dotenv import load_dotenv
 from graph.agent import create_graph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 
+# Import routers
+from backend.api.v1.endpoints import generation, ppt_generation
+
 # Load environment variables
 load_dotenv()
 
 app = FastAPI(title="Mini-OpenClaw Backend", version="1.0.0")
+
+# Mount Static Files
+static_dir = os.path.join(os.getcwd(), "backend", "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# Include Routers
+app.include_router(generation.router, prefix="/api/v1", tags=["generation"])
+app.include_router(ppt_generation.router, prefix="/api/v1", tags=["ppt_generation"])
 
 # Initialize Agent Graph
 agent_graph = create_graph()

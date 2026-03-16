@@ -118,17 +118,17 @@ class ThreadedBrowserManager:
                     desc = args[0]
                     try:
                         clicked = False
-                        # Try multiple strategies
+                        # 尝试多种策略
                         strategies = [
                             lambda: page.get_by_role("button", name=desc).first,
                             lambda: page.get_by_role("link", name=desc).first,
-                            lambda: page.get_by_text(desc, exact=True).first, # Try exact match first
+                            lambda: page.get_by_text(desc, exact=True).first, # 首先尝试精确匹配
                             lambda: page.get_by_text(desc, exact=False).first,
                             lambda: page.get_by_label(desc).first,
                             lambda: page.get_by_title(desc).first,
                             lambda: page.locator(f"button:has-text('{desc}')").first,
                             lambda: page.locator(f"a:has-text('{desc}')").first,
-                            # Common patterns for buttons
+                            # 按钮的常见模式
                             lambda: page.locator(f"[aria-label*='{desc}']").first,
                             lambda: page.locator(f"[title*='{desc}']").first
                         ]
@@ -136,7 +136,7 @@ class ThreadedBrowserManager:
                         for strategy in strategies:
                             try:
                                 loc = strategy()
-                                if loc.is_visible(timeout=500): # Short timeout for check
+                                if loc.is_visible(timeout=500): # 检查的短超时
                                     loc.click()
                                     self.result_queue.put(f"Clicked element matching '{desc}'")
                                     clicked = True
@@ -145,8 +145,8 @@ class ThreadedBrowserManager:
                                 continue
                         
                         if not clicked:
-                            # Fallback: try to find any visible element containing the text
-                            # This is a bit risky but useful for "smart" behavior
+                            # 回退：尝试查找包含该文本的任何可见元素
+                            # 这有点风险，但对“智能”行为很有用
                             try:
                                 loc = page.locator(f"text={desc}").first
                                 if loc.is_visible(timeout=1000):
@@ -154,11 +154,11 @@ class ThreadedBrowserManager:
                                     self.result_queue.put(f"Clicked text '{desc}' (fallback)")
                                     clicked = True
                             except: pass
-
+                            
                         if not clicked:
                             res = f"Could not find clickable element matching '{desc}'. I tried roles, text, labels, and titles."
                         else:
-                            continue # Result already put
+                            continue # 结果已放入
                     except Exception as e:
                         res = f"Error in smart click for '{desc}': {e}"
 
@@ -180,15 +180,15 @@ class ThreadedBrowserManager:
                             lambda: page.get_by_label(desc).first,
                             lambda: page.get_by_role("textbox", name=desc).first,
                             lambda: page.get_by_role("searchbox", name=desc).first,
-                            # Generic selectors for common inputs
+                            # 常见输入的通用选择器
                             lambda: page.locator(f"input[name*='{desc}']").first,
                             lambda: page.locator(f"input[id*='{desc}']").first,
                             lambda: page.locator(f"input[placeholder*='{desc}']").first,
                             lambda: page.locator(f"textarea[name*='{desc}']").first,
                             lambda: page.locator(f"textarea[placeholder*='{desc}']").first,
-                            # Fallback for search
+                            # 搜索的回退
                             lambda: page.locator("input[type='search']").first if "search" in desc.lower() or "搜索" in desc else None,
-                            lambda: page.locator("input[type='text']").first # Last resort: first text input? Maybe too aggressive.
+                            lambda: page.locator("input[type='text']").first # 最后的手段：第一个文本输入？可能太激进了。
                         ]
 
                         for strategy in strategies:
@@ -206,7 +206,7 @@ class ThreadedBrowserManager:
                                 continue
                         
                         if not typed:
-                             # Special case: if desc is "search" or "搜索", try to find ANY search input
+                             # 特殊情况：如果描述是“search”或“搜索”，尝试查找任何搜索输入
                             if "search" in desc.lower() or "搜索" in desc:
                                 try:
                                     loc = page.locator("input[type='search'], input[name='q'], input[name='wd'], input[name='query']").first
@@ -282,14 +282,14 @@ class ThreadedBrowserManager:
 
     def execute(self, cmd, *args, **kwargs):
         if not self.worker_thread.is_alive():
-            # Restart if died
+            # 如果挂了就重启
             self.worker_thread = threading.Thread(target=self._worker_loop, daemon=True)
             self.worker_thread.start()
-            # Give it a sec to init
+            # 给它一秒钟初始化
             time.sleep(2)
             
         self.cmd_queue.put((cmd, args, kwargs))
-        # Add a timeout to get() to prevent infinite hang if worker dies
+        # 给 get() 添加超时，以防 worker 挂掉时无限挂起
         try:
             return self.result_queue.get(timeout=180)
         except queue.Empty:
@@ -301,113 +301,113 @@ def get_browser_manager() -> ThreadedBrowserManager:
 # --- Tools ---
 
 class BrowserOpenInput(BaseModel):
-    url: str = Field(description="The URL to open")
+    url: str = Field(description="要打开的 URL")
 
 class BrowserOpenTool(BaseTool):
     name: str = "browser_open"
-    description: str = "Opens a URL in a visible browser window. Use this to start browsing or navigate to a new page."
+    description: str = "在可见的浏览器窗口中打开 URL。用于开始浏览或导航到新页面。"
     args_schema: Type[BaseModel] = BrowserOpenInput
 
     def _run(self, url: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("goto", url)
 
 class BrowserClickInput(BaseModel):
-    selector: str = Field(description="The CSS selector of the element to click (e.g. '#submit-button', '.video-title')")
+    selector: str = Field(description="要点击元素的 CSS 选择器（例如 '#submit-button', '.video-title'）")
 
 class BrowserClickTool(BaseTool):
     name: str = "browser_click"
-    description: str = "Clicks an element on the current page using a CSS selector."
+    description: str = "使用 CSS 选择器点击当前页面上的元素。"
     args_schema: Type[BaseModel] = BrowserClickInput
 
     def _run(self, selector: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("click", selector)
 
 class BrowserClickTextInput(BaseModel):
-    text: str = Field(description="Text to find on the page and click (partial match)")
+    text: str = Field(description="在页面上查找并点击的文本（部分匹配）")
 
 class BrowserClickTextTool(BaseTool):
     name: str = "browser_click_text"
-    description: str = "Finds a visible element by text (partial match) and clicks it. Useful when you don't know CSS selectors."
+    description: str = "通过文本（部分匹配）查找可见元素并点击。当你不知道 CSS 选择器时很有用。"
     args_schema: Type[BaseModel] = BrowserClickTextInput
 
     def _run(self, text: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("click_text", text)
 
 class BrowserClickRoleInput(BaseModel):
-    role: str = Field(description="ARIA role, e.g. 'button', 'link'")
-    name: str = Field(description="Accessible name of the element")
+    role: str = Field(description="ARIA 角色，例如 'button', 'link'")
+    name: str = Field(description="元素的可访问名称")
 
 class BrowserClickRoleTool(BaseTool):
     name: str = "browser_click_role"
-    description: str = "Clicks an element by ARIA role and accessible name. Useful for buttons like '点赞'."
+    description: str = "通过 ARIA 角色和可访问名称点击元素。适用于像“点赞”这样的按钮。"
     args_schema: Type[BaseModel] = BrowserClickRoleInput
 
     def _run(self, role: str, name: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("click_role", role, name)
 
 class BrowserSmartClickInput(BaseModel):
-    description: str = Field(description="Description of the element to click (e.g. 'search', 'like', 'submit')")
+    description: str = Field(description="要点击元素的描述（例如 'search', 'like', 'submit'）")
 
 class BrowserSmartClickTool(BaseTool):
     name: str = "browser_smart_click"
-    description: str = "Intelligently finds and clicks an element based on a description. Tries role, text, label, and title."
+    description: str = "根据描述智能查找并点击元素。尝试角色、文本、标签和标题。"
     args_schema: Type[BaseModel] = BrowserSmartClickInput
 
     def _run(self, description: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("smart_click", description)
 
 class BrowserTypeInput(BaseModel):
-    selector: str = Field(description="The CSS selector of the input field")
-    text: str = Field(description="The text to type")
+    selector: str = Field(description="输入框的 CSS 选择器")
+    text: str = Field(description="要输入的文本")
 
 class BrowserTypeTool(BaseTool):
     name: str = "browser_type"
-    description: str = "Types text into an input field using a CSS selector."
+    description: str = "使用 CSS 选择器在输入框中输入文本。"
     args_schema: Type[BaseModel] = BrowserTypeInput
 
     def _run(self, selector: str, text: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("type", selector, text)
 
 class BrowserSmartTypeInput(BaseModel):
-    description: str = Field(description="Description of the input field (e.g. 'search', 'username', 'comment')")
-    text: str = Field(description="The text to type")
+    description: str = Field(description="输入框的描述（例如 'search', 'username', 'comment'）")
+    text: str = Field(description="要输入的文本")
 
 class BrowserSmartTypeTool(BaseTool):
     name: str = "browser_smart_type"
-    description: str = "Intelligently finds an input field based on description and types text. Tries placeholder, label, and role."
+    description: str = "根据描述智能查找输入框并输入文本。尝试占位符、标签和角色。"
     args_schema: Type[BaseModel] = BrowserSmartTypeInput
 
     def _run(self, description: str, text: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("smart_type", description, text)
 
 class BrowserPressKeyInput(BaseModel):
-    key: str = Field(description="Key to press (e.g. 'Enter', 'Escape', 'Tab')")
+    key: str = Field(description="要按下的键（例如 'Enter', 'Escape', 'Tab'）")
 
 class BrowserPressKeyTool(BaseTool):
     name: str = "browser_press_key"
-    description: str = "Presses a keyboard key. Useful for submitting forms (Enter) or closing modals (Escape)."
+    description: str = "模拟按键操作。适用于提交表单（Enter）或关闭模态框（Escape）。"
     args_schema: Type[BaseModel] = BrowserPressKeyInput
 
     def _run(self, key: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("press_key", key)
 
 class BrowserScrollInput(BaseModel):
-    direction: str = Field(description="Direction to scroll: 'down', 'up', 'bottom', 'top'")
+    direction: str = Field(description="滚动方向：'down', 'up', 'bottom', 'top'")
 
 class BrowserScrollTool(BaseTool):
     name: str = "browser_scroll"
-    description: str = "Scrolls the current page."
+    description: str = "滚动当前页面。"
     args_schema: Type[BaseModel] = BrowserScrollInput
 
     def _run(self, direction: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         return get_browser_manager().execute("scroll", direction)
 
 class BrowserScreenshotInput(BaseModel):
-    filename: str = Field(description="Filename for the screenshot (e.g. 'page.png')")
+    filename: str = Field(description="截图的文件名（例如 'page.png'）")
 
 class BrowserScreenshotTool(BaseTool):
     name: str = "browser_screenshot"
-    description: str = "Takes a screenshot of the current page and saves it to Downloads."
+    description: str = "对当前页面截图并保存到下载目录。"
     args_schema: Type[BaseModel] = BrowserScreenshotInput
 
     def _run(self, filename: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
@@ -418,7 +418,7 @@ class BrowserPageInfoInput(BaseModel):
 
 class BrowserPageInfoTool(BaseTool):
     name: str = "browser_page_info"
-    description: str = "Returns current page URL and title as JSON."
+    description: str = "以 JSON 格式返回当前页面的 URL 和标题。"
     args_schema: Type[BaseModel] = BrowserPageInfoInput
 
     def _run(self, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
@@ -429,7 +429,7 @@ class BrowserA11ySnapshotInput(BaseModel):
 
 class BrowserA11ySnapshotTool(BaseTool):
     name: str = "browser_a11y_snapshot"
-    description: str = "Returns a JSON accessibility snapshot of the current page (may be truncated)."
+    description: str = "返回当前页面的 JSON 可访问性快照（可能会被截断）。"
     args_schema: Type[BaseModel] = BrowserA11ySnapshotInput
 
     def _run(self, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
