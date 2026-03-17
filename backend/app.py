@@ -1,5 +1,10 @@
 import sys
 import os
+import warnings
+
+# Suppress Pydantic V1 warnings from LangChain
+warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 # Add the parent directory to Python path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
