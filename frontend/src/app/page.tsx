@@ -411,6 +411,13 @@ export default function Home() {
                  <MonitorPlay className="w-4 h-4" />
                  <span className="font-medium">演示文稿 (文生PPT)</span>
              </Link>
+             <Link 
+                 href="/rag" 
+                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-all"
+             >
+                 <Database className="w-4 h-4" />
+                 <span className="font-medium">知识库问答 (RAG)</span>
+             </Link>
            </div>
 
           {activeSidebarTab === "skills" && (

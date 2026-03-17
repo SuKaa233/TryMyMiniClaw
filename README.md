@@ -4,9 +4,11 @@ Mini-OpenClaw 是一个轻量级、本地优先的 AI Agent 系统，基于 Pyth
 
 ## 前置要求
 
-- Python 3.10+
+- Python 3.10+ (已测试环境: 3.14.0)
 - Node.js 18+
-- OpenAI API Key (或兼容的 API Key)
+- API Keys: 
+  - OpenAI API Key (或兼容的 API Key，如 Moonshot 等，用于主 Agent)
+  - DeepSeek API Key (用于 RAG 知识库和文生 PPT 功能)
 
 ## 快速开始 (推荐)
 
@@ -101,6 +103,9 @@ Mini-OpenClaw 是一个轻量级、本地优先的 AI Agent 系统，基于 Pyth
 
 ## 功能特性
 
+- **轻量级 RAG 知识库问答**: 支持上传 PDF, Word (.docx), PPT (.pptx), TXT, MD 文件，基于 DeepSeek 和 ChromaDB 进行本地向量化存储和智能问答。
+- **创意工坊 (文生图)**: 集成 AI 图像生成模型，支持自定义提示词、分辨率和宽高比生成高质量图片。
+- **演示文稿 (文生PPT)**: 仅需输入主题，AI 即可自动规划大纲并生成排版精美的 `.pptx` 演示文稿。
 - **文件优先记忆**: 所有的记忆和技能都作为 Markdown 文件存储在 `backend/workspace` 和 `backend/skills` 中。
 - **技能系统**: 通过在 `backend/skills` 中创建文件夹和 `SKILL.md` 文件来添加新技能。
 - **透明代理**: 实时查看 Agent 的思考过程和工具使用情况。
@@ -110,12 +115,16 @@ Mini-OpenClaw 是一个轻量级、本地优先的 AI Agent 系统，基于 Pyth
 ## 目录结构
 
 - `backend/`: Python 后端代码。
-    - `app.py`: FastAPI 应用程序入口。
+    - `api/v1/endpoints/`: FastAPI 路由控制器 (含 RAG, 文生图, PPT 生成接口)。
+    - `services/`: 核心业务逻辑实现 (RAG, Image, PPT)。
     - `graph/`: LangGraph Agent 定义。
     - `tools/`: 核心工具 (Terminal, Python, Fetch, Browser 等)。
     - `workspace/`: 系统提示词和配置。
     - `skills/`: Agent 技能定义。
 - `frontend/`: Next.js 前端代码。
-    - `src/app/page.tsx`: 主应用 UI。
+    - `src/app/page.tsx`: 主应用 UI (聊天界面)。
+    - `src/app/rag/page.tsx`: 知识库问答界面。
+    - `src/app/creative/page.tsx`: 创意工坊界面。
+    - `src/app/ppt/page.tsx`: PPT 生成界面。
     - `src/lib/api.ts`: API 客户端。
 - `start_services.py`: 一键启动脚本。

@@ -17,7 +17,7 @@ from graph.agent import create_graph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 
 # Import routers
-from backend.api.v1.endpoints import generation, ppt_generation
+from backend.api.v1.endpoints import generation, ppt_generation, rag
 
 # Load environment variables
 load_dotenv()
@@ -32,6 +32,7 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 # Include Routers
 app.include_router(generation.router, prefix="/api/v1", tags=["generation"])
 app.include_router(ppt_generation.router, prefix="/api/v1", tags=["ppt_generation"])
+app.include_router(rag.router, prefix="/api/v1/rag", tags=["rag"])
 
 # Initialize Agent Graph
 agent_graph = create_graph()
