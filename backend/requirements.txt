@@ -19,3 +19,4 @@ chromadb>=0.4.22
 pypdf>=4.0.0
 python-multipart>=0.0.9
 python-docx>=1.1.0
+neo4j>=5.14.0

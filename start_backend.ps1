@@ -15,4 +15,4 @@ Write-Host "Working Directory: $(Get-Location)"
 Write-Host "Python Path: $env:PYTHONPATH"
 
 # Start the server using module syntax to ensure proper package resolution
-python -m backend.app
+py -m backend.app

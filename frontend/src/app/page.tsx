@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User, Sparkles, MonitorPlay } from "lucide-react";
+import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User, Sparkles, MonitorPlay, Network } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { sendMessage, getFile, saveFile, getSessions, getSkills, getSessionHistory, deleteSession, checkHealth, type Message, type ToolCall } from "@/lib/api";
 import { clsx, type ClassValue } from "clsx";
@@ -417,6 +417,13 @@ export default function Home() {
              >
                  <Database className="w-4 h-4" />
                  <span className="font-medium">知识库问答 (RAG)</span>
+             </Link>
+             <Link 
+                 href="/ontology" 
+                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-indigo-500/10 to-violet-500/10 hover:from-indigo-500/20 hover:to-violet-500/20 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 transition-all"
+             >
+                 <Network className="w-4 h-4" />
+                 <span className="font-medium">知识图谱对话 (Ontology)</span>
              </Link>
            </div>
 
