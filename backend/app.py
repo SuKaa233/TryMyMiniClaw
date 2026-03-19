@@ -22,7 +22,7 @@ from graph.agent import create_graph
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 
 # Import routers
-from backend.api.v1.endpoints import generation, ppt_generation, rag, ontology
+from backend.api.v1.endpoints import generation, ppt_generation, rag, ontology, ocr
 
 # Load environment variables
 load_dotenv()
@@ -39,6 +39,7 @@ app.include_router(generation.router, prefix="/api/v1", tags=["generation"])
 app.include_router(ppt_generation.router, prefix="/api/v1", tags=["ppt_generation"])
 app.include_router(rag.router, prefix="/api/v1/rag", tags=["rag"])
 app.include_router(ontology.router, prefix="/api/v1/ontology", tags=["ontology"])
+app.include_router(ocr.router, prefix="/api/v1/ocr", tags=["ocr"])
 
 # Initialize Agent Graph
 agent_graph = create_graph()

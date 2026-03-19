@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User, Sparkles, MonitorPlay, Network } from "lucide-react";
+import { Send, FileText, Database, Code, Save, Terminal, MessageSquare, Plus, Moon, Sun, Trash2, Activity, ChevronRight, ChevronLeft, Layers, FolderOpen, Zap, ChevronDown, Wrench, Settings, User, Sparkles, MonitorPlay, Network, ScanText } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import { sendMessage, getFile, saveFile, getSessions, getSkills, getSessionHistory, deleteSession, checkHealth, type Message, type ToolCall } from "@/lib/api";
 import { clsx, type ClassValue } from "clsx";
@@ -424,6 +424,13 @@ export default function Home() {
              >
                  <Network className="w-4 h-4" />
                  <span className="font-medium">知识图谱对话 (Ontology)</span>
+             </Link>
+             <Link 
+                 href="/ocr" 
+                 className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm bg-gradient-to-r from-sky-500/10 to-cyan-500/10 hover:from-sky-500/20 hover:to-cyan-500/20 border border-sky-500/20 text-sky-600 dark:text-sky-400 transition-all"
+             >
+                 <ScanText className="w-4 h-4" />
+                 <span className="font-medium">智能识图 (OCR)</span>
              </Link>
            </div>
 
