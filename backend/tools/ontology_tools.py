@@ -2,6 +2,28 @@ from langchain_core.tools import tool
 from typing import Optional, List, Dict, Any
 import json
 from backend.ontology.service import ontology_service
+from backend.ontology.mysql_sync import mysql_syncer
+
+@tool
+def import_mysql_to_neo4j() -> str:
+    """
+    Connect to a user's MySQL database (using env credentials), read its tables, rows, and foreign key relationships, 
+    and automatically sync/import them into the Neo4j ontology graph database.
+    Call this tool when the user asks to sync, import, or read from their MySQL database into the graph.
+    """
+    try:
+        stats = mysql_syncer.sync()
+        return json.dumps({
+            "status": "success",
+            "message": "MySQL to Neo4j sync completed successfully.",
+            "stats": stats
+        }, ensure_ascii=False, indent=2)
+    except Exception as e:
+        return json.dumps({
+            "status": "error",
+            "message": f"Failed to sync MySQL to Neo4j: {str(e)}",
+            "instruction": "Please ensure MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE are correctly set in the .env file."
+        }, ensure_ascii=False, indent=2)
 
 @tool
 def propose_create_project(name: str, description: str = "", budget: float = 0.0, status: str = "Active"):
@@ -176,5 +198,6 @@ ontology_tools = [
     propose_create_task,
     get_graph_schema,
     search_knowledge_graph,
-    list_entities
+    list_entities,
+    import_mysql_to_neo4j
 ]

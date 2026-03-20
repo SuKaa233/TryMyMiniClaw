@@ -1,0 +1,28 @@
+[
+  {
+    "type": "user",
+    "content": "帮我把mysql的数据转化到neo4j里"
+  },
+  {
+    "type": "assistant",
+    "content": "我将帮您将MySQL数据转化到Neo4j中。让我执行导入操作。",
+    "tool_calls": [
+      {
+        "name": "import_mysql_to_neo4j",
+        "args": {},
+        "id": "call_00_k4vCFDYIbaiAHEDRuF8uRPEh",
+        "type": "tool_call"
+      }
+    ]
+  },
+  {
+    "type": "tool",
+    "content": "{\n  \"status\": \"success\",\n  \"message\": \"MySQL to Neo4j sync completed successfully.\",\n  \"stats\": {\n    \"tables_processed\": 5,\n    \"nodes_created\": 15,\n    \"relationships_created\": 12\n  }\n}",
+    "tool_call_id": "call_00_k4vCFDYIbaiAHEDRuF8uRPEh",
+    "name": "import_mysql_to_neo4j"
+  },
+  {
+    "type": "assistant",
+    "content": "MySQL数据已成功转化到Neo4j中！以下是导入统计信息：\n\n- **处理的表数量**: 5个\n- **创建的节点数量**: 15个\n- **创建的关系数量**: 12个\n\n导入操作已完成。MySQL数据库中的表结构、数据和关系现在都已同步到Neo4j图数据库中。您可以在Neo4j中查询这些数据，并利用图数据库的优势进行更复杂的关联分析和查询。"
+  }
+]
